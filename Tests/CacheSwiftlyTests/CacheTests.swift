@@ -91,9 +91,11 @@ final class CacheTests: XCTestCase {
     func test_valueForKey_withExistingKey1Value1_setNewKey2Value2_lruHeadShouldContainKey2Value2() throws {
         let sut = Cache<Int>(costLimit: 5)
         try sut.setValue(1, forKey: "1", cost: 0)
+        try sut.setValue(2, forKey: "2", cost: 0)
+        let _ = sut.value(forKey: "1")
         var entry = sut.lru.head as? LRUNode<Cache<Int>.CacheEntry>
         XCTAssertEqual(entry?.value.value, 1)
-        try sut.setValue(2, forKey: "2", cost: 0)
+        let _ = sut.value(forKey: "2")
         entry = sut.lru.head as? LRUNode<Cache<Int>.CacheEntry>
         XCTAssertEqual(entry?.value.value, 2)
     }

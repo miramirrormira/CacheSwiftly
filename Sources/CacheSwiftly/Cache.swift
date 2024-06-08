@@ -21,7 +21,7 @@ public class Cache<V> {
         public var cost: Int
     }
     
-    init(costLimit: Int) {
+    public init(costLimit: Int) {
         self.costLimit = costLimit
         self.costLeft = costLimit
     }
