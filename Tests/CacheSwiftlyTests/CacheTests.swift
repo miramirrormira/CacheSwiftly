@@ -115,4 +115,11 @@ final class CacheTests: XCTestCase {
         sut.removeValue(forKey: "1")
         XCTAssertEqual(sut.costLeft - oldCostLeft, 2)
     }
+    
+    func test_subscript() throws {
+        let sut = Cache<Int>(costLimit: 5)
+        try sut.setValue(0, forKey: "0", cost: 0)
+        let value = sut["0"]
+        XCTAssertEqual(value, 0)
+    }
 }

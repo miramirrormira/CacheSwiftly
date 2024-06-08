@@ -69,4 +69,8 @@ public class Cache<V> {
         cache.removeAll()
         lru.removeAll()
     }
+    
+    public subscript(_ key: Key) -> V? {
+        return cache[key]?.value.value
+    }
 }
