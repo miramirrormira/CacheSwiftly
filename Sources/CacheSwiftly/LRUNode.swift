@@ -11,7 +11,6 @@ public class LRUNode<Value>: Node {
     public var value: Value
     public var next: Node?
     public var prev: Node?
-
     public init(value: Value) {
         self.value = value
     }

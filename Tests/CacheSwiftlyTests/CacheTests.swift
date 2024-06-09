@@ -8,7 +8,7 @@ final class CacheTests: XCTestCase {
         let sut = Cache<Int>(costLimit: costLimit)
         
         XCTAssertEqual(sut.costLimit, 5)
-        XCTAssertEqual(sut.costLeft, sut.costLimit)
+        XCTAssertEqual(sut.costLeft_, sut.costLimit)
     }
     
     func test_setValue_withCost5CostLimit0_shouldThrowExceededCostLimitError() async {
@@ -62,21 +62,21 @@ final class CacheTests: XCTestCase {
     func test_setValue_withKey1Value1_lruHeadNodeShouldContainTheSameEntry() throws {
         let sut = Cache<Int>(costLimit: 5)
         try sut.setValue(1, forKey: "1", cost: 0)
-        let entry = sut.lru.head as? LRUNode<Cache<Int>.CacheEntry>
-        XCTAssertEqual(entry?.value.value, 1)
-        XCTAssertEqual(entry?.value.cost, 0)
+        let mruEntry = sut.lru.head as? LRUNode<Cache<Int>.CacheEntry>
+        XCTAssertEqual(mruEntry?.value.value, 1)
+        XCTAssertEqual(mruEntry?.value.cost, 0)
     }
     
-    func test_valueForKey_withNonExistingKey1_shouldReturnNil() {
+    func test_valueForKey_withNonExistingKey1_shouldReturnNil() async throws {
         let sut = Cache<Int>(costLimit: 5)
-        let value = sut.value(forKey: "1")
+        let value = try await sut.value(forKey: "1")
         XCTAssertNil(value)
     }
     
-    func test_valueForKey_withExistingKey1Value1Pair_shouldReturnValue1() throws {
+    func test_valueForKey_withExistingKey1Value1Pair_shouldReturnValue1() async throws {
         let sut = Cache<Int>(costLimit: 5)
         try sut.setValue(1, forKey: "1", cost: 0)
-        let value = sut.value(forKey: "1")
+        let value = try await sut.value(forKey: "1")
         XCTAssertNotNil(value)
         XCTAssertEqual(value, 1)
     }
@@ -84,20 +84,20 @@ final class CacheTests: XCTestCase {
     func test_valueForKey_withKey1Value1_lruHeadShouldContainTheSameEntry() throws {
         let sut = Cache<Int>(costLimit: 5)
         try sut.setValue(1, forKey: "1", cost: 0)
-        let entry = sut.lru.head as? LRUNode<Cache<Int>.CacheEntry>
-        XCTAssertEqual(entry?.value.value, 1)
+        let mruEntry = sut.lru.head as? LRUNode<Cache<Int>.CacheEntry>
+        XCTAssertEqual(mruEntry?.value.value, 1)
     }
     
-    func test_valueForKey_withExistingKey1Value1_setNewKey2Value2_lruHeadShouldContainKey2Value2() throws {
+    func test_valueForKey_withExistingKey1Value1_setNewKey2Value2_lruHeadShouldContainKey2Value2() async throws {
         let sut = Cache<Int>(costLimit: 5)
         try sut.setValue(1, forKey: "1", cost: 0)
         try sut.setValue(2, forKey: "2", cost: 0)
-        let _ = sut.value(forKey: "1")
-        var entry = sut.lru.head as? LRUNode<Cache<Int>.CacheEntry>
-        XCTAssertEqual(entry?.value.value, 1)
-        let _ = sut.value(forKey: "2")
-        entry = sut.lru.head as? LRUNode<Cache<Int>.CacheEntry>
-        XCTAssertEqual(entry?.value.value, 2)
+        let _ = try await sut.value(forKey: "1")
+        var mruEntry = sut.lru.head as? LRUNode<Cache<Int>.CacheEntry>
+        XCTAssertEqual(mruEntry?.value.value, 1)
+        let _ = try await sut.value(forKey: "2")
+        mruEntry = sut.lru.head as? LRUNode<Cache<Int>.CacheEntry>
+        XCTAssertEqual(mruEntry?.value.value, 2)
     }
     
     func test_removeValue_withKey1Value1_cacheShouldNotContainTheSameEntry() throws {
@@ -111,9 +111,9 @@ final class CacheTests: XCTestCase {
     func test_removeValue_withCost2_costLeftShouldIncreasyBy2() throws {
         let sut = Cache<Int>(costLimit: 5)
         try sut.setValue(1, forKey: "1", cost: 2)
-        let oldCostLeft = sut.costLeft
+        let oldCostLeft = sut.costLeft_
         sut.removeValue(forKey: "1")
-        XCTAssertEqual(sut.costLeft - oldCostLeft, 2)
+        XCTAssertEqual(sut.costLeft_ - oldCostLeft, 2)
     }
     
     func test_subscript() throws {
@@ -121,5 +121,62 @@ final class CacheTests: XCTestCase {
         try sut.setValue(0, forKey: "0", cost: 0)
         let value = sut["0"]
         XCTAssertEqual(value, 0)
+    }
+    
+    func test_setValue_raceCondition() async throws {
+        let count = 10000
+        let sut = Cache<Int>(costLimit: count)
+        let group = DispatchGroup()
+        let concurrentQueue = DispatchQueue(label: "CacheSwiftly.CacheTests.induceRaceCondition", attributes: [.concurrent])
+        for i in 0..<count {
+            group.enter()
+            concurrentQueue.async {
+                do {
+                    try sut.setValue(i, forKey: "\(i)", cost: 1)
+                    group.leave()
+                } catch {
+                    XCTFail()
+                }
+            }
+        }
+        let expectation = expectation(description: "wait_for_concurrent_setValue")
+        group.notify(queue: .main) {
+            expectation.fulfill()
+        }
+        await fulfillment(of: [expectation], timeout: 10)
+        XCTAssertEqual(sut.cache.count, count)
+        XCTAssertEqual(sut.costLeft, 0)
+    }
+    
+    func test_removeValue_raceCondition() async throws {
+        let count = 10000
+        let sut = Cache<Int>(costLimit: count)
+
+        for i in 0..<count {
+            do {
+                try sut.setValue(i, forKey: "\(i)", cost: 1)
+            } catch {
+                XCTFail()
+            }
+        }
+        let group = DispatchGroup()
+        let concurrentQueue = DispatchQueue(label: "CacheSwiftly.CacheTests.induceRaceCondition", attributes: [.concurrent])
+        
+        for i in 0..<count {
+            group.enter()
+            concurrentQueue.async {
+                let key = "\(i)"
+                sut.removeValue(forKey: key)
+                group.leave()
+            }
+        }
+        
+        let expectation = expectation(description: "wait_for_concurrent_setValue")
+        group.notify(queue: .main) {
+            expectation.fulfill()
+        }
+        await fulfillment(of: [expectation], timeout: 10)
+        XCTAssertEqual(sut.costLeft, count)
+        XCTAssertEqual(sut.cache.count, 0)
     }
 }

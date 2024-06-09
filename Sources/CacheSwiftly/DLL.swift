@@ -9,71 +9,96 @@ import Foundation
 
 public class DLL {
     
-    public var head: Node?
-    public var tail: Node?
+    var head_: Node?
+    var tail_: Node?
+    private let threadSafetyQueue = DispatchQueue(label: "CacheSwiftly.DLL.threadSafetyQueue")
     
     public init() { }
     
+    public var head: Node? {
+        threadSafetyQueue.sync {
+            head_
+        }
+    }
+    
+    public var tail: Node? {
+        threadSafetyQueue.sync {
+            tail_
+        }
+    }
+    
     public func remove(_ node: Node) {
-        if node === head {
-            popHead()
-            return
+        threadSafetyQueue.sync {
+            let prev = node.prev
+            let next = node.next
+            prev?.next = next
+            next?.prev = prev
+            if node === head_ {
+                head_ = next
+                if head_ == nil {
+                    tail_ = nil
+                }
+                return
+            }
+            if node === tail_ {
+                tail_ = prev
+                return
+            }
         }
-        if node === tail {
-            popTail()
-            return
-        }
-        let prev = node.prev
-        let next = node.next
-        prev?.next = next
-        next?.prev = prev
     }
     
     @discardableResult
     public func popHead() -> Node? {
-        let oldHead = head
-        let newHead = head?.next
-        newHead?.prev = nil
-        head = newHead
-        if head == nil {
-            tail = nil
+        threadSafetyQueue.sync {
+            let oldHead = head_
+            let newHead = head_?.next
+            newHead?.prev = nil
+            head_ = newHead
+            if head_ == nil {
+                tail_ = nil
+            }
+            return oldHead
         }
-        return oldHead
     }
     
     @discardableResult
     public func popTail() -> Node? {
-        let oldTail = tail
-        let newTail = tail?.prev
-        newTail?.next = nil
-        tail = newTail
-        if tail == nil {
-            head = nil
+        threadSafetyQueue.sync {
+            let oldTail = tail_
+            let newTail = tail_?.prev
+            newTail?.next = nil
+            tail_ = newTail
+            if tail_ == nil {
+                head_ = nil
+            }
+            return oldTail
         }
-        return oldTail
     }
     
     public func insertHead(_ node: Node) {
-        if head == nil && tail == nil {
-            head = node
-            tail = node
-            return
+        threadSafetyQueue.sync {
+            if head_ == nil && tail_ == nil {
+                head_ = node
+                tail_ = node
+                return
+            }
+            node.next = head_
+            head_?.prev = node
+            head_ = node
         }
-        
-        node.next = head
-        head?.prev = node
-        head = node
     }
     
     public func removeAll() {
-        var curNode = head
-        while curNode != nil {
-            let next = curNode?.next
-            curNode?.prev = nil
-            curNode?.next = nil
-            curNode = next
+        threadSafetyQueue.sync {
+            var curNode = head_
+            while curNode != nil {
+                let next = curNode?.next
+                curNode?.prev = nil
+                curNode?.next = nil
+                curNode = next
+            }
+            head_ = nil
+            tail_ = nil
         }
-        head = nil
-        tail = nil
     }
 }

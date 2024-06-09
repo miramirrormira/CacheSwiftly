@@ -12,36 +12,36 @@ final class DLLTests: XCTestCase {
         }
         
         let sut = DLL.init()
-        sut.head = LRUNodeSpy<Int>(value: 0, calledDeinit: calledDeinit)
-        sut.head?.next = LRUNodeSpy<Int>(value: 1, calledDeinit: calledDeinit)
-        sut.head?.next?.prev = sut.head
-        sut.head?.next?.next = LRUNodeSpy<Int>(value: 2, calledDeinit: calledDeinit)
-        sut.head?.next?.next?.prev = sut.head?.next
-        sut.tail = sut.head?.next?.next
+        sut.head_ = LRUNodeSpy<Int>(value: 0, calledDeinit: calledDeinit)
+        sut.head_?.next = LRUNodeSpy<Int>(value: 1, calledDeinit: calledDeinit)
+        sut.head_?.next?.prev = sut.head_
+        sut.head_?.next?.next = LRUNodeSpy<Int>(value: 2, calledDeinit: calledDeinit)
+        sut.head_?.next?.next?.prev = sut.head_?.next
+        sut.tail_ = sut.head_?.next?.next
         
         sut.removeAll()
         
-        XCTAssertNil(sut.head)
-        XCTAssertNil(sut.tail)
+        XCTAssertNil(sut.head_)
+        XCTAssertNil(sut.tail_)
         XCTAssertEqual(deinitCount, 3)
     }
     
     func test_popHead_with_empty_dll() {
         let sut = DLL.init()
         let popped = sut.popHead()
-        XCTAssertNil(sut.head)
-        XCTAssertNil(sut.tail)
+        XCTAssertNil(sut.head_)
+        XCTAssertNil(sut.tail_)
         XCTAssertNil(popped)
     }
     
     func test_popHead_with_one_node_in_dll() {
         let sut = DLL.init()
         let node = LRUNode(value: 0)
-        sut.head = node
-        sut.tail = sut.head
+        sut.head_ = node
+        sut.tail_ = sut.head_
         let popped = sut.popHead()
-        XCTAssertNil(sut.head)
-        XCTAssertNil(sut.tail)
+        XCTAssertNil(sut.head_)
+        XCTAssertNil(sut.tail_)
         XCTAssertIdentical(popped, node)
     }
     
@@ -51,8 +51,8 @@ final class DLLTests: XCTestCase {
             deinitCount += 1
         }
         let sut = DLL.init()
-        sut.head = LRUNodeSpy(value: 0, calledDeinit: calledDeinit)
-        sut.tail = sut.head
+        sut.head_ = LRUNodeSpy(value: 0, calledDeinit: calledDeinit)
+        sut.tail_ = sut.head_
         sut.popHead()
         XCTAssertEqual(deinitCount, 1)
     }
@@ -60,19 +60,19 @@ final class DLLTests: XCTestCase {
     func test_popTail_with_empty_dll() {
         let sut = DLL.init()
         let popped = sut.popTail()
-        XCTAssertNil(sut.head)
-        XCTAssertNil(sut.tail)
+        XCTAssertNil(sut.head_)
+        XCTAssertNil(sut.tail_)
         XCTAssertNil(popped)
     }
     
     func test_popTail_with_one_node_in_dll() {
         let sut = DLL.init()
         let node = LRUNode(value: 0)
-        sut.head = node
-        sut.tail = sut.head
+        sut.head_ = node
+        sut.tail_ = sut.head_
         let popped = sut.popTail()
-        XCTAssertNil(sut.head)
-        XCTAssertNil(sut.tail)
+        XCTAssertNil(sut.head_)
+        XCTAssertNil(sut.tail_)
         XCTAssertIdentical(popped, node)
     }
     
@@ -82,8 +82,8 @@ final class DLLTests: XCTestCase {
             deinitCount += 1
         }
         let sut = DLL.init()
-        sut.head = LRUNodeSpy(value: 0, calledDeinit: calledDeinit)
-        sut.tail = sut.head
+        sut.head_ = LRUNodeSpy(value: 0, calledDeinit: calledDeinit)
+        sut.tail_ = sut.head_
         sut.popTail()
         XCTAssertEqual(deinitCount, 1)
     }
@@ -96,16 +96,16 @@ final class DLLTests: XCTestCase {
         }
         
         let sut = DLL.init()
-        sut.head = LRUNodeSpy(value: 0, calledDeinit: calledDeinit)
-        sut.head?.next = LRUNodeSpy(value: 1, calledDeinit: calledDeinit)
-        sut.tail = sut.head?.next
-        sut.tail?.prev = sut.head
+        sut.head_ = LRUNodeSpy(value: 0, calledDeinit: calledDeinit)
+        sut.head_?.next = LRUNodeSpy(value: 1, calledDeinit: calledDeinit)
+        sut.tail_ = sut.head_?.next
+        sut.tail_?.prev = sut.head_
         
         sut.popHead()
         
-        XCTAssertNotNil(sut.head)
-        XCTAssertNotNil(sut.tail)
-        XCTAssertIdentical(sut.head, sut.tail)
+        XCTAssertNotNil(sut.head_)
+        XCTAssertNotNil(sut.tail_)
+        XCTAssertIdentical(sut.head_, sut.tail_)
         XCTAssertEqual(deinitCount, 1)
     }
     
@@ -117,34 +117,34 @@ final class DLLTests: XCTestCase {
         }
         
         let sut = DLL.init()
-        sut.head = LRUNodeSpy(value: 0, calledDeinit: calledDeinit)
-        sut.head?.next = LRUNodeSpy(value: 1, calledDeinit: calledDeinit)
-        sut.tail = sut.head?.next
-        sut.tail?.prev = sut.head
+        sut.head_ = LRUNodeSpy(value: 0, calledDeinit: calledDeinit)
+        sut.head_?.next = LRUNodeSpy(value: 1, calledDeinit: calledDeinit)
+        sut.tail_ = sut.head_?.next
+        sut.tail_?.prev = sut.head_
         
         sut.popTail()
         
-        XCTAssertNotNil(sut.head)
-        XCTAssertNotNil(sut.tail)
-        XCTAssertIdentical(sut.head, sut.tail)
+        XCTAssertNotNil(sut.head_)
+        XCTAssertNotNil(sut.tail_)
+        XCTAssertIdentical(sut.head_, sut.tail_)
         XCTAssertEqual(deinitCount, 1)
     }
     
     func test_popHead_with_three_nodes_in_dll() {
         
         let sut = DLL.init()
-        sut.head = LRUNode(value: 0)
-        sut.head?.next = LRUNode(value: 1)
-        sut.head?.next?.next = LRUNode(value: 2)
-        sut.head?.next?.prev = sut.head
-        sut.head?.next?.next?.prev = sut.head?.next
-        sut.tail = sut.head?.next?.next
+        sut.head_ = LRUNode(value: 0)
+        sut.head_?.next = LRUNode(value: 1)
+        sut.head_?.next?.next = LRUNode(value: 2)
+        sut.head_?.next?.prev = sut.head_
+        sut.head_?.next?.next?.prev = sut.head_?.next
+        sut.tail_ = sut.head_?.next?.next
         
         sut.popHead()
         
-        XCTAssertNotNil(sut.head)
-        XCTAssertNotNil(sut.tail)
-        XCTAssertNotIdentical(sut.head, sut.tail)
+        XCTAssertNotNil(sut.head_)
+        XCTAssertNotNil(sut.tail_)
+        XCTAssertNotIdentical(sut.head_, sut.tail_)
     }
     
     func test_popTail_with_three_nodes_in_dll() {
@@ -155,18 +155,18 @@ final class DLLTests: XCTestCase {
         }
         
         let sut = DLL.init()
-        sut.head = LRUNodeSpy(value: 0, calledDeinit: calledDeinit)
-        sut.head?.next = LRUNodeSpy(value: 1, calledDeinit: calledDeinit)
-        sut.head?.next?.next = LRUNodeSpy(value: 2, calledDeinit: calledDeinit)
-        sut.head?.next?.prev = sut.head
-        sut.head?.next?.next?.prev = sut.head?.next
-        sut.tail = sut.head?.next?.next
+        sut.head_ = LRUNodeSpy(value: 0, calledDeinit: calledDeinit)
+        sut.head_?.next = LRUNodeSpy(value: 1, calledDeinit: calledDeinit)
+        sut.head_?.next?.next = LRUNodeSpy(value: 2, calledDeinit: calledDeinit)
+        sut.head_?.next?.prev = sut.head_
+        sut.head_?.next?.next?.prev = sut.head_?.next
+        sut.tail_ = sut.head_?.next?.next
         
         sut.popTail()
         
-        XCTAssertNotNil(sut.head)
-        XCTAssertNotNil(sut.tail)
-        XCTAssertNotIdentical(sut.head, sut.tail)
+        XCTAssertNotNil(sut.head_)
+        XCTAssertNotNil(sut.tail_)
+        XCTAssertNotIdentical(sut.head_, sut.tail_)
         XCTAssertEqual(deinitCount, 1)
     }
     
@@ -174,88 +174,92 @@ final class DLLTests: XCTestCase {
         let sut = DLL.init()
         let node = LRUNode(value: 0)
         sut.insertHead(node)
-        XCTAssertIdentical(sut.head, node)
-        XCTAssertIdentical(sut.tail, node)
+        XCTAssertIdentical(sut.head_, node)
+        XCTAssertIdentical(sut.tail_, node)
     }
     
     func test_insertHead_with_one_node_in_dll() {
         let sut = DLL.init()
         let node = LRUNode(value: 0)
-        sut.head = node
-        sut.tail = node
+        sut.head_ = node
+        sut.tail_ = node
         
         let newNode = LRUNode(value: 1)
         sut.insertHead(newNode)
         
-        XCTAssertIdentical(sut.head, newNode)
-        XCTAssertIdentical(sut.tail, node)
-        XCTAssertIdentical(sut.head?.next, sut.tail)
-        XCTAssertIdentical(sut.tail?.prev, sut.head)
+        XCTAssertIdentical(sut.head_, newNode)
+        XCTAssertIdentical(sut.tail_, node)
+        XCTAssertIdentical(sut.head_?.next, sut.tail_)
+        XCTAssertIdentical(sut.tail_?.prev, sut.head_)
     }
     
     func test_remove_with_one_node_in_dll() {
         let sut = DLL.init()
         let nodeToRemove = LRUNode(value: 0)
-        sut.head = nodeToRemove
-        sut.tail = nodeToRemove
+        sut.head_ = nodeToRemove
+        sut.tail_ = nodeToRemove
         
         sut.remove(nodeToRemove)
         
-        XCTAssertNil(sut.head)
-        XCTAssertNil(sut.tail)
+        XCTAssertNil(sut.head_)
+        XCTAssertNil(sut.tail_)
     }
     
     func test_remove_with_two_nodes_in_dll_and_removing_head_node() {
         let sut = DLL.init()
         let nodeToRemove = LRUNode(value: 0)
-        sut.head = nodeToRemove
-        sut.head?.next = LRUNode(value: 1)
-        sut.tail = sut.head?.next
-        sut.tail?.prev = sut.head
+        sut.head_ = nodeToRemove
+        sut.head_?.next = LRUNode(value: 1)
+        sut.tail_ = sut.head_?.next
+        sut.tail_?.prev = sut.head_
         
         sut.remove(nodeToRemove)
         
-        XCTAssertIdentical(sut.head, sut.tail)
-        XCTAssertNil(sut.head?.next)
-        XCTAssertNil(sut.head?.prev)
-        XCTAssertNil(sut.tail?.next)
-        XCTAssertNil(sut.tail?.prev)
+        XCTAssertNotNil(sut.head_)
+        XCTAssertIdentical(sut.head_, sut.tail_)
+        let newHead = sut.head_ as? LRUNode<Int>
+        XCTAssertEqual(newHead?.value, 1)
+        XCTAssertNil(sut.head_?.next)
+        XCTAssertNil(sut.head_?.prev)
+        XCTAssertNil(sut.tail_?.next)
+        XCTAssertNil(sut.tail_?.prev)
     }
     
     func test_remove_with_two_nodes_in_dll_and_removing_tail_node() {
         let sut = DLL.init()
         let nodeToRemove = LRUNode(value: 1)
-        sut.head = LRUNode(value: 0)
-        sut.head?.next = nodeToRemove
-        sut.tail = sut.head?.next
-        sut.tail?.prev = sut.head
+        sut.head_ = LRUNode(value: 0)
+        sut.head_?.next = nodeToRemove
+        sut.tail_ = sut.head_?.next
+        sut.tail_?.prev = sut.head_
         
         sut.remove(nodeToRemove)
         
-        XCTAssertIdentical(sut.head, sut.tail)
-        XCTAssertNil(sut.head?.next)
-        XCTAssertNil(sut.head?.prev)
-        XCTAssertNil(sut.tail?.next)
-        XCTAssertNil(sut.tail?.prev)
+        let newTail = sut.tail_ as! LRUNode<Int>
+        XCTAssertEqual(newTail.value, 0)
+        XCTAssertNotNil(sut.tail_)
+        XCTAssertIdentical(sut.head_, sut.tail_)
+        XCTAssertNil(sut.head_?.next)
+        XCTAssertNil(sut.head_?.prev)
+        XCTAssertNil(sut.tail_?.next)
+        XCTAssertNil(sut.tail_?.prev)
     }
     
     func test_remove_with_three_nodes_in_dll_and_removing_middle_node() {
         let sut = DLL.init()
         let nodeToRemove = LRUNode(value: 1)
-        sut.head = LRUNode(value: 0)
-        sut.head?.next = nodeToRemove
-        sut.head?.next?.next = LRUNode(value: 2)
-        sut.head?.next?.prev = sut.head
-        sut.head?.next?.next?.prev = sut.head?.next
-        sut.tail = sut.head?.next?.next
+        sut.head_ = LRUNode(value: 0)
+        sut.head_?.next = nodeToRemove
+        sut.head_?.next?.next = LRUNode(value: 2)
+        sut.head_?.next?.prev = sut.head_
+        sut.head_?.next?.next?.prev = sut.head_?.next
+        sut.tail_ = sut.head_?.next?.next
         
         sut.remove(nodeToRemove)
         
-        XCTAssertIdentical(sut.head?.next, sut.tail)
-        XCTAssertIdentical(sut.tail?.prev, sut.head)
-        XCTAssertNil(sut.head?.prev)
-        XCTAssertNil(sut.tail?.next)
+        XCTAssertIdentical(sut.head_?.next, sut.tail_)
+        XCTAssertIdentical(sut.tail_?.prev, sut.head_)
+        XCTAssertNil(sut.head_?.prev)
+        XCTAssertNil(sut.tail_?.next)
     }
-    
-    
 }

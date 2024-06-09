@@ -9,4 +9,5 @@ import Foundation
 
 enum CacheErrors: Error {
     case exceededCostLimit
+    case cacheObjectNotExist
 }
