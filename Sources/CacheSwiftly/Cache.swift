@@ -21,7 +21,7 @@ public class Cache<V> {
     
     public let costLimit: Int
     let lru: DLL = .init()
-    let queue = DispatchQueue(label: "cache_race_condition_queue", attributes: [.concurrent])
+    let queue = DispatchQueue(label: "cache_race_condition_queue", attributes: [.concurrent], target: .global(qos: .background))
     
     public struct CacheEntry {
         public var value: V
