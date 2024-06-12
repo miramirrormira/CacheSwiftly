@@ -1,5 +1,5 @@
 //
-//  Cache.swift
+//  LRUCache.swift
 //
 //
 //  Created by Mira Yang on 6/7/24.
@@ -7,8 +7,8 @@
 
 import Foundation
 
-public class Cache<V> {
-   
+public class LRUCache<V>: Cachable {
+    public typealias Value = V
     public typealias Key = String
     
     public var cache: [Key: LRUNode<CacheEntry>] = [:]
