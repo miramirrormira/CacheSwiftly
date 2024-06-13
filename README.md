@@ -1,7 +1,8 @@
 # CacheSwiftly
 
 ## Todo:
-- make cache protocol
 - make a basic cache
-- reformat LRU Cache
-- make Cache take reference type
+- fix the decode and encode function for LRUNode
+- add expiration strategy
+- add lru to disk cache
+- add time base expiration

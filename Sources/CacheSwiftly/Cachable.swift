@@ -12,6 +12,6 @@ public protocol Cachable {
     typealias Key = String
     func setValue(_ value: Value, forKey key: Key, cost: Int) throws
     func value(forKey key: Key) async throws -> Value?
-    func removeValue(forKey key: Key)
+    func removeValue(forKey key: Key) throws
     func removeAllValues() throws
 }

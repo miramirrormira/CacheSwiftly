@@ -8,10 +8,11 @@
 import Foundation
 
 public class LRUCache<V>: Cachable {
+    
     public typealias Value = V
     public typealias Key = String
     
-    public var cache: [Key: LRUNode<CacheEntry>] = [:]
+    public var cache: [Key: LRUNode<CacheEntry<V>>] = [:]
     public var costLeft_: Int
     public var costLeft: Int {
         queue.sync {
@@ -21,12 +22,11 @@ public class LRUCache<V>: Cachable {
     
     public let costLimit: Int
     let lru: DLL = .init()
-    let queue = DispatchQueue(label: "cache_race_condition_queue", attributes: [.concurrent], target: .global(qos: .background))
+    let queue = DispatchQueue(label: "cache_race_condition_queue", 
+                              attributes: [.concurrent],
+                              target: .global(qos: .background))
     
-    public struct CacheEntry {
-        public var value: V
-        public var cost: Int
-    }
+
     
     public init(costLimit: Int) {
         self.costLimit = costLimit
@@ -78,7 +78,7 @@ public class LRUCache<V>: Cachable {
             throw CacheErrors.exceededCostLimit
         }
         while cost > costLeft {
-            guard let removedNode = lru.popHead() as? LRUNode<CacheEntry> else {
+            guard let removedNode = lru.popHead() as? LRUNode<CacheEntry<V>> else {
                 fatalError("CacheSwiftly.Cache<V>.Error: got wrong lru node type in file:\(#file) line: \(#line)")
             }
             let releasedCost = getCost(from: removedNode)
@@ -86,13 +86,13 @@ public class LRUCache<V>: Cachable {
         }
     }
     
-    private func insertToCache(_ node: LRUNode<CacheEntry>, key: Key) {
+    private func insertToCache(_ node: LRUNode<CacheEntry<V>>, key: Key) {
         queue.sync(flags: .barrier) {
             cache[key] = node
         }
     }
     
-    private func removeFromCache(for key: Key) -> LRUNode<CacheEntry>? {
+    private func removeFromCache(for key: Key) -> LRUNode<CacheEntry<V>>? {
         queue.sync(flags: .barrier) {
             cache.removeValue(forKey: key)
         }
@@ -104,7 +104,7 @@ public class LRUCache<V>: Cachable {
         }
     }
     
-    private func node(for key: Key) -> LRUNode<CacheEntry>? {
+    private func node(for key: Key) -> LRUNode<CacheEntry<V>>? {
         queue.sync {
             cache[key]
         }
@@ -116,7 +116,7 @@ public class LRUCache<V>: Cachable {
         }
     }
     
-    private func getCost(from node: LRUNode<CacheEntry>) -> Int {
+    private func getCost(from node: LRUNode<CacheEntry<V>>) -> Int {
         queue.sync {
             node.value.cost
         }

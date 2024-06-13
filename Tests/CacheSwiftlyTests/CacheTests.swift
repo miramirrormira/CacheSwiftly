@@ -62,7 +62,7 @@ final class CacheTests: XCTestCase {
     func test_setValue_withKey1Value1_lruHeadNodeShouldContainTheSameEntry() throws {
         let sut = LRUCache<Int>(costLimit: 5)
         try sut.setValue(1, forKey: "1", cost: 0)
-        let mruEntry = sut.lru.head as? LRUNode<LRUCache<Int>.CacheEntry>
+        let mruEntry = sut.lru.head as? LRUNode<CacheEntry<Int>>
         XCTAssertEqual(mruEntry?.value.value, 1)
         XCTAssertEqual(mruEntry?.value.cost, 0)
     }
@@ -84,7 +84,7 @@ final class CacheTests: XCTestCase {
     func test_valueForKey_withKey1Value1_lruHeadShouldContainTheSameEntry() throws {
         let sut = LRUCache<Int>(costLimit: 5)
         try sut.setValue(1, forKey: "1", cost: 0)
-        let mruEntry = sut.lru.head as? LRUNode<LRUCache<Int>.CacheEntry>
+        let mruEntry = sut.lru.head as? LRUNode<CacheEntry<Int>>
         XCTAssertEqual(mruEntry?.value.value, 1)
     }
     
@@ -93,10 +93,10 @@ final class CacheTests: XCTestCase {
         try sut.setValue(1, forKey: "1", cost: 0)
         try sut.setValue(2, forKey: "2", cost: 0)
         let _ = try await sut.value(forKey: "1")
-        var mruEntry = sut.lru.head as? LRUNode<LRUCache<Int>.CacheEntry>
+        var mruEntry = sut.lru.head as? LRUNode<CacheEntry<Int>>
         XCTAssertEqual(mruEntry?.value.value, 1)
         let _ = try await sut.value(forKey: "2")
-        mruEntry = sut.lru.head as? LRUNode<LRUCache<Int>.CacheEntry>
+        mruEntry = sut.lru.head as? LRUNode<CacheEntry<Int>>
         XCTAssertEqual(mruEntry?.value.value, 2)
     }
     

@@ -7,18 +7,22 @@
 
 import Foundation
 
-public class MemoryCache<V: AnyObject>: Cachable {
+public class MemoryCache<V>: Cachable {
     public typealias Value = V
     public typealias Key = String
     
-    public var cache: NSCache<NSString, V> = .init()
+    public var cache: NSCache<NSString, CacheEntry<V>>
+    
+    init(cache: NSCache<NSString, CacheEntry<V>>) {
+        self.cache = cache
+    }
     
     public func setValue(_ value: V, forKey key: Key, cost: Int) throws {
-        cache.setObject(value, forKey: key as NSString, cost: cost)
+        cache.setObject(CacheEntry(value: value, cost: cost), forKey: key as NSString, cost: cost)
     }
 
     public func value(forKey key: Key) async throws -> V? {
-        cache.object(forKey: key as NSString)
+        cache.object(forKey: key as NSString)?.value
     }
     
     public func removeValue(forKey key: Key) {
@@ -30,6 +34,6 @@ public class MemoryCache<V: AnyObject>: Cachable {
     }
     
     public subscript(_ key: Key) -> V? {
-        cache.object(forKey: key as NSString)
+        cache.object(forKey: key as NSString)?.value
     }
 }
