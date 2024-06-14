@@ -9,6 +9,7 @@ import Foundation
 
 public class DiskCache<V: Codable>: Cachable {
     
+    
     public typealias Value = V
     
     var keys: Set<Key> = []
@@ -57,6 +58,12 @@ public class DiskCache<V: Codable>: Cachable {
     public func removeAllValues() throws {
         for key in keys {
             try removeValue(forKey: key)
+        }
+    }
+    
+    public subscript(key: Key) -> V? {
+        get throws {
+            try value(forKey: key)
         }
     }
     

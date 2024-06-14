@@ -68,8 +68,8 @@ public class LRUCache<V>: Cachable {
     }
     
     public subscript(_ key: Key) -> V? {
-        queue.sync {
-            cache[key]?.value.value
+        get async throws {
+            try await value(forKey: key)
         }
     }
     

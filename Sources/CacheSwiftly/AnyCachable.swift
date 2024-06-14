@@ -9,6 +9,8 @@ import Foundation
 
 public class AnyCachable<V>: Cachable {
     
+    
+    
     public typealias Value = V
     let wrappedSetValue: (V, Key, Int) throws -> Void
     let wrappedValue: (Key) async throws -> V?
@@ -36,5 +38,11 @@ public class AnyCachable<V>: Cachable {
     
     public func removeAllValues() throws {
         try wrappedRemoveAllValues()
+    }
+    
+    public subscript(key: Key) -> V? {
+        get async throws {
+            try await wrappedValue(key)
+        }
     }
 }

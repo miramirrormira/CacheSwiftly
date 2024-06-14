@@ -14,4 +14,5 @@ public protocol Cachable {
     func value(forKey key: Key) async throws -> Value?
     func removeValue(forKey key: Key) throws
     func removeAllValues() throws
+    subscript(_ key: Key) -> Value? { get async throws }
 }
