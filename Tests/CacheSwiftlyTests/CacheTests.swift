@@ -116,10 +116,10 @@ final class CacheTests: XCTestCase {
         XCTAssertEqual(sut.costLeft_ - oldCostLeft, 2)
     }
     
-    func test_subscript() throws {
+    func test_subscript() async throws {
         let sut = LRUCache<Int>(costLimit: 5)
         try sut.setValue(0, forKey: "0", cost: 0)
-        let value = sut["0"]
+        let value = try await sut["0"]
         XCTAssertEqual(value, 0)
     }
     
