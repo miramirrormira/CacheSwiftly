@@ -13,6 +13,10 @@ public class MemoryCache<V>: Cachable {
     
     public var cache: NSCache<NSString, CacheEntry<V>> = .init()
     
+    public init(cache: NSCache<NSString, CacheEntry<V>> = .init()) {
+        self.cache = cache
+    }
+    
     public func setValue(_ value: V, forKey key: Key, cost: Int) throws {
         cache.setObject(CacheEntry(value: value, cost: cost), forKey: key as NSString, cost: cost)
     }

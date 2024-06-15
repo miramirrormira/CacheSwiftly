@@ -20,7 +20,7 @@ public class DiskCache<V: Codable>: Cachable {
         "metaData.cache"
     }
     
-    init(label: String, costLimit: Int) throws {
+    public init(label: String, costLimit: Int) throws {
         self.label = label
         self.costLimit = costLimit
         self.costLeft = costLimit
