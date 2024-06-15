@@ -9,8 +9,6 @@ import Foundation
 
 public class AnyCachable<V>: Cachable {
     
-    
-    
     public typealias Value = V
     let wrappedSetValue: (V, Key, Int) throws -> Void
     let wrappedValue: (Key) async throws -> V?

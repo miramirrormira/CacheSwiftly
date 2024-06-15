@@ -11,11 +11,7 @@ public class MemoryCache<V>: Cachable {
     public typealias Value = V
     public typealias Key = String
     
-    public var cache: NSCache<NSString, CacheEntry<V>>
-    
-    init(cache: NSCache<NSString, CacheEntry<V>>) {
-        self.cache = cache
-    }
+    public var cache: NSCache<NSString, CacheEntry<V>> = .init()
     
     public func setValue(_ value: V, forKey key: Key, cost: Int) throws {
         cache.setObject(CacheEntry(value: value, cost: cost), forKey: key as NSString, cost: cost)
